@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تبدیل صدا به متن</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            direction: rtl;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        button {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #output {
+            width: 80%;
+            max-width: 600px;
+            height: 200px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 16px;
+            background-color: white;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h1>علی الله وردی زاده</h1>
+    <button id="voiceButton">شروع ضبط صدا</button>
+    <div id="output"></div>
+
+    <script>
+        const button = document.getElementById('voiceButton');
+        const output = document.getElementById('output');
+
+        // Check for SpeechRecognition API
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert('مرورگر شما از تشخیص صدا پشتیبانی نمی‌کند.');
+            button.disabled = true;
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true; // Allows ongoing transcription
+            recognition.interimResults = true; // Show real-time results
+            recognition.lang = 'fa-IR'; // Set language to Persian
+
+            let isListening = false;
+
+            button.addEventListener('click', () => {
+                if (!isListening) {
+                    recognition.start();
+                    button.textContent = 'توقف ضبط صدا';
+                    isListening = true;
+                } else {
+                    recognition.stop();
+                    button.textContent = 'شروع ضبط صدا';
+                    isListening = false;
+                }
+            });
+
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = 0; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript + ' ';
+                }
+                output.textContent = transcript.trim();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('خطا در تشخیص صدا:', event.error);
+                alert(`خطا در تشخیص صدا: ${event.error}`);
+            };
+
+            recognition.onend = () => {
+                button.textContent = 'شروع ضبط صدا';
+                isListening = false;
+            };
+        }
+    </script>
+</body>
+</html>
